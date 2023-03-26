@@ -13,6 +13,7 @@ class ViewController: UIViewController {
         layout.scrollDirection = .horizontal
         layout.itemSize.width = 200
         layout.itemSize.height = 300
+        layout.sectionInset = UIEdgeInsets(top: 100, left: 0, bottom: 100, right: 0)
         return layout
     }()
     
@@ -35,14 +36,12 @@ class ViewController: UIViewController {
         view.addSubview(collection)
         
         NSLayoutConstraint.activate([
-            collection.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            collection.topAnchor.constraint(equalTo: view.topAnchor),
             collection.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             collection.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            collection.heightAnchor.constraint(equalToConstant: 400)
+            collection.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
     }
-
-
 }
 
 extension ViewController: UICollectionViewDataSource {
@@ -50,7 +49,7 @@ extension ViewController: UICollectionViewDataSource {
         return 1
     }
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 57
+            return 57
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -69,11 +68,30 @@ final class CollectionViewCell: UICollectionViewCell {
     static let reuseID = "CollectionViewCell"
 }
 
+final class HeaderViewCell: UICollectionReusableView {
+    static let reuseID = "HeaderViewCell"
+    
+    private lazy var title: UILabel = {
+        let view = UILabel(frame: .zero)
+        view.text = "Collection View"
+        return view
+    }()
+    
+    func configure(){
+        backgroundColor = .systemBrown
+        addSubview(title)
+    }
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        title.frame = bounds
+    }
+}
+
 final class CustomLayout: UICollectionViewFlowLayout {
     private var previouseOffset: CGFloat = 0
     private var currentPadge = 0
     override func targetContentOffset(forProposedContentOffset proposedContentOffset: CGPoint, withScrollingVelocity velocity: CGPoint) -> CGPoint {
-        let targetContentOffset = super.targetContentOffset(forProposedContentOffset: proposedContentOffset, withScrollingVelocity: velocity)
         guard let collection = collectionView else {
             return super.targetContentOffset(forProposedContentOffset: proposedContentOffset, withScrollingVelocity: velocity)
         }
@@ -86,7 +104,6 @@ final class CustomLayout: UICollectionViewFlowLayout {
             currentPadge = min(currentPadge + 2, itemCount - 1)
         }
 
-        let w = collection.frame.width
         let itemW = itemSize.width
         let sp = minimumLineSpacing
         let edge = collection.layoutMargins.left
